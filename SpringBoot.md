@@ -343,15 +343,71 @@ ${random.value},${random.int}
 
 
 
+## 5、Profile
+
+## 1、多Profile文件
+
+我们在主配置文件编写的时候，文件名可以是 application-{profile}.properties/yaml
+
+## 2、yml支持多文档块方式
+
+```yaml
+server:
+  port: 8082
+spring:
+  profiles:
+    active: prod
+---
+server:
+  port: 8083
+spring:
+  profiles: dev
+---
+server:
+  port: 8084
+spring:
+  profiles: prod
+```
 
 
 
+## 3、激活指定profile
+
+1、在配置文件中指定 spring.profiles.active=dev
+
+2、命令行：
+
+java -jar G:\01_SpringBoot_Project\springbootsxt\target\springbootsxt-0.0.1-SNAPSHOT.jar --spring-profile-active=prod
+
+可以直接在测试的时候，配置传入命令行参数
+
+3、虚拟机参数
+
+-Dspring.profile.active=dev
 
 
 
+## 6、配置文件加载位置
+
+SpringBoot启动会扫描以下位置的application.properties或者application.yml文件作为SpringBoot默认配置文件
+
+-file:./config/
+
+-file:./
+
+-classpath:/config/
+
+-classpath:/
+
+优先级由高到低，高优先级的配置会覆盖低优先级的配置；
+
+SpringBoot会从这个四个位置全部加载主配置文件，**互补配置**；
 
 
 
+我们还可以通过spring.config.location改变默认配置文件位置 
+
+**项目打包好以后，我们可以使用命令行参数的形式，启动项目的时候来指定配置文件的心位置；指定配置文件和默认加载的这些配置文件共同起作用形成互补配置；**
 
 
 
