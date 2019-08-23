@@ -20,7 +20,7 @@ import java.util.Map;
  *      @ConfigurationProperties 默认从全局获取配置
  */
 @Component
-@PropertySource(value = {"classpath:person.properties"})
+//@PropertySource(value = {"classpath:person.properties"})
 @ConfigurationProperties(prefix = "person")
 //@Validated   // 结合 @Email注解验证
 public class Person {
