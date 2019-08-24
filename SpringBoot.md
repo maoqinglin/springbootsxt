@@ -790,4 +790,115 @@ logback_spring.xml：日志框架就不直接加载日志的配置项，由Sprin
 </springProfile>
 ```
 
+# 四、Web开发
 
+## 1、SpringBoot对静态资源的映射规则
+
+```properties
+@ConfigurationProperties(prefix = "spring.resources", ignoreUnknownFields = false)
+public class ResourceProperties {
+// 可以设置和资源有关的参数，缓存时间等
+```
+
+
+
+```java
+public void addResourceHandlers(ResourceHandlerRegistry registry) {
+			if (!this.resourceProperties.isAddMappings()) {
+				logger.debug("Default resource handling disabled");
+				return;
+			}
+			Duration cachePeriod = this.resourceProperties.getCache().getPeriod();
+			CacheControl cacheControl = this.resourceProperties
+                .getCache()
+                .getCachecontrol()
+                .toHttpCacheControl();
+			if (!registry.hasMappingForPattern("/webjars/**")) {
+				customizeResourceHandlerRegistration(
+                    registry
+                    .addResourceHandler("/webjars/**")
+					.addResourceLocations("classpath:/META-INF/resources/webjars/")
+					.setCachePeriod(getSeconds(cachePeriod))
+                    .setCacheControl(cacheControl));
+			}
+			String staticPathPattern = this.mvcProperties.getStaticPathPattern();
+			if (!registry.hasMappingForPattern(staticPathPattern)) {
+				customizeResourceHandlerRegistration(
+                    registry.addResourceHandler(staticPathPattern)
+						.addResourceLocations(getResourceLocations(
+                                this.resourceProperties.getStaticLocations()))								.setCachePeriod(getSeconds(cachePeriod))
+                    	.setCacheControl(cacheControl));
+			}
+		}
+
+// 配置欢迎页
+@Bean
+public WelcomePageHandlerMapping welcomePageHandlerMapping(ApplicationContext applicationContext) {
+			WelcomePageHandlerMapping welcomePageHandlerMapping = new WelcomePageHandlerMapping(
+					new TemplateAvailabilityProviders(applicationContext), 			applicationContext, getWelcomePage(),
+					this.mvcProperties.getStaticPathPattern());
+			welcomePageHandlerMapping.setInterceptors(getInterceptors());
+			return welcomePageHandlerMapping;
+		}
+
+//配置喜欢的图标
+@Configuration
+		@ConditionalOnProperty(value = "spring.mvc.favicon.enabled", matchIfMissing = true)
+		public static class FaviconConfiguration implements ResourceLoaderAware {
+
+			private final ResourceProperties resourceProperties;
+
+			private ResourceLoader resourceLoader;
+
+			public FaviconConfiguration(ResourceProperties resourceProperties) {
+				this.resourceProperties = resourceProperties;
+			}
+
+			@Override
+			public void setResourceLoader(ResourceLoader resourceLoader) {
+				this.resourceLoader = resourceLoader;
+			}
+
+			@Bean
+			public SimpleUrlHandlerMapping faviconHandlerMapping() {
+				SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
+				mapping.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
+				mapping.setUrlMap(Collections.singletonMap("**/favicon.ico", faviconRequestHandler()));
+				return mapping;
+			}
+
+			@Bean
+			public ResourceHttpRequestHandler faviconRequestHandler() {
+				ResourceHttpRequestHandler requestHandler = new ResourceHttpRequestHandler();
+				requestHandler.setLocations(resolveFaviconLocations());
+				return requestHandler;
+			}
+```
+
+1）、所有/webjars/**, 都去 classpath:/META-INF/resources/webjars/ 找资源；
+
+​	webjars：以jar包的方式引入静态资源；
+
+2）、”/**“ 访问当前项目的任何资源，（静态资源的文件夹）
+
+```properties
+"classpath:/META-INF/resources/",
+"classpath:/resources/",  // /resources/resources
+"classpath:/static/", 
+"classpath:/public/"
+"/**"
+```
+
+**/java 和 /resources 都为classpath的根路径**
+
+localhost:8080/abc === 去静态资源文件夹里面找abc
+
+![](G:\03_Markdown\Images\静态资源路径.png)
+
+访问js的路径：localhost:8080/asserts/js/Chart.min.js；**注意不用加static，因为本来就是在静态资源路径下找的**
+
+3）、欢迎页、静态资源文件夹下的所有 index.html 页面；被 ”/**“映射；
+
+​	localhost:8080/  找 index 页面
+
+4）、所有的 **/favicon.ico 都是在静态资源文件下找；
