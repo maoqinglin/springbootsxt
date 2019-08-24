@@ -685,3 +685,109 @@ xxxProperties：封装配置文件中相关属性；
 public class HttpProperties {
 
 ```
+
+## 3、SpringBoot日志关系
+
+底层依赖关系
+
+![](G:\03_Markdown\Images\SpringBoot_Log依赖.png)
+
+总结：
+
+​	1）、SpringBoot底层也是使用 slf4j + logback 的方式进行日志记录
+
+​	2）、SpringBoot也把其它的日志都替换成了 slf4j；
+
+​	3）、中间替换包？
+
+```java
+private static class Slf4jAdapter {
+
+		public static Log createLocationAwareLog(String name) {
+			Logger logger = LoggerFactory.getLogger(name);
+			return (logger instanceof LocationAwareLogger ?
+					new Slf4jLocationAwareLog((LocationAwareLogger) logger) : new Slf4jLog<>(logger));
+		}
+
+		public static Log createLog(String name) {
+			return new Slf4jLog<>(LoggerFactory.getLogger(name));
+		}
+	}
+```
+
+
+
+​	4）、如果我们要引入其它框架？一定要把这个框架默认的日志依赖移除掉？
+
+​	
+
+**SpringBoot能自动适配所有的日志，而且底层使用 slf4j+logback的方式记录日志，引入其它框架的时候，只需要把这个框架依赖的日志框架排除掉；**
+
+
+
+## 4、日志使用
+
+### 1、SpringBoot修改日志的默认配置
+
+```properties
+#指定日志的完整路径
+#logging.file=G:/springboot.log
+#在当前磁盘下创建springboot目录和log目录，使用spring.log作为默认文件
+logging.path=G:/springboot/log
+
+# 在控制台输出的日志的格式
+logging.pattern.console=
+# 在文件中输出的日志的格式
+logging.pattern.file=
+```
+
+
+
+SpringBoot日志默认配置
+
+主jar包下，logging包下logback
+
+base.xm
+
+```xml
+<included>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
+	<include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+	<include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+	<root level="INFO">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE" />
+	</root>
+</included>
+```
+
+root 默认为 INFO级别
+
+include配置了控制台及文件输出
+
+defaults.xml：规定了默认配置
+
+
+
+### 2、指定配置
+
+给类路径下放上每个日志框架自己的配置文件即可；SpringBoot就不使用默认配置了
+
+| Logging System          | Customization                                                |
+| ----------------------- | ------------------------------------------------------------ |
+| Logback                 | `logback-spring.xml`, `logback-spring.groovy`, `logback.xml`, or `logback.groovy` |
+| Log4j2                  | `log4j2-spring.xml` or `log4j2.xml`                          |
+| JDK (Java Util Logging) | `logging.properties`                                         |
+
+logback.xml：直接就被日志框架识别了；
+
+logback_spring.xml：日志框架就不直接加载日志的配置项，由SpringBoot解析日志配置，可以使用SpringBoot的高级 Profile 功能
+
+```xml
+<springProfile name="staging">
+	<!-- configuration to be enabled when the "staging" profile is active -->
+</springProfile>
+```
+
+
