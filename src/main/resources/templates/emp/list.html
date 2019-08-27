@@ -74,10 +74,11 @@
                         <td th:text="${emp.gender} == 0?'女':'男'">in</td>
                         <td th:text="${emp.department.departmentName}">libero</td>
                         <!--使用工具类后，变量不要${ }，直接写成 emp.birth}-->
-                        <td th:text="${#dates.format(emp.birth, 'yyyy-MM-dd')}" ></td>
+                        <td th:text="${#dates.format(emp.birth, 'yyyy-MM-dd')}"></td>
                         <td>
-                            <button class="btn btn-sm btn-primary">编辑</button>
-                            <button class="btn btn-sm btn-danger">删除</button>
+                            <!--链接中的变量需要拼接-->
+                            <a class="btn btn-sm btn-primary" th:href="@{/emp/}+${emp.id}">编辑</a>
+                            <a class="btn btn-sm btn-danger" th:href="@{/emp/}+${emp.id}">删除</a>
                         </td>
                     </tr>
                     </tbody>
