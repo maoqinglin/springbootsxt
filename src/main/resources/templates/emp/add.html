@@ -44,45 +44,40 @@
         <div th:replace="commons/bar::#sidebar(activeUri='emps')"></div>
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-
-            <h2><a class="btn btn-sm btn-success" href="emp" th:href="@{/emp}">添加员工</a></h2>
-            <div class="table-responsive">
-                <table class="table table-striped table-sm">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Header</th>
-                        <th>Header</th>
-                        <th>Header</th>
-                        <th>Header</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>#</td>
-                        <td>LastName</td>
-                        <td>Email</td>
-                        <td>Gender</td>
-                        <td>Department</td>
-                        <td>Birth</td>
-                        <td>操作</td>
-                    </tr>
-                    <tr th:each="emp : ${emps}">
-                        <td th:text="${emp.id}"></td>
-                        <td th:text="${emp.lastName}">sodales</td>
-                        <td th:text="${emp.email}">ligula</td>
-                        <td th:text="${emp.gender} == 0?'女':'男'">in</td>
-                        <td th:text="${emp.department.departmentName}">libero</td>
-                        <!--使用工具类后，变量不要${ }，直接写成 emp.birth}-->
-                        <td th:text="${#dates.format(emp.birth, 'yyyy-MM-dd')}" ></td>
-                        <td>
-                            <button class="btn btn-sm btn-primary">编辑</button>
-                            <button class="btn btn-sm btn-danger">删除</button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            <form th:action="@{/emp}" method="post">
+                <div class="form-group">
+                    <label>LastName</label>
+                    <input name="lastName" type="text" class="form-control" placeholder="zhangsan">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input name="email" type="email" class="form-control" placeholder="zhangsan@atguigu.com">
+                </div>
+                <div class="form-group">
+                    <label>Gender</label><br/>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="gender" value="1">
+                        <label class="form-check-label">男</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="gender" value="0">
+                        <label class="form-check-label">女</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>department</label>
+                    <!--提交的是部门的id-->
+                    <select class="form-control" name="department.id">
+                        <option th:each="dept : ${depts}" th:value="${dept.id}" th:text="${dept.departmentName}">1
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Birth</label>
+                    <input name="birth" type="text" class="form-control" placeholder="zhangsan">
+                </div>
+                <button type="submit" class="btn btn-primary">添加</button>
+            </form>
         </main>
     </div>
 </div>
