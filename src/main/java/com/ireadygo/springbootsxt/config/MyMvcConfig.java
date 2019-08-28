@@ -2,6 +2,10 @@ package com.ireadygo.springbootsxt.config;
 
 import com.ireadygo.springbootsxt.component.LoginHandlerInterceptor;
 import com.ireadygo.springbootsxt.component.MyLocaleResolver;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.LocaleResolver;
@@ -44,4 +48,5 @@ public class MyMvcConfig implements WebMvcConfigurer {
     public LocaleResolver localeResolver() {
         return new MyLocaleResolver();
     }
+
 }
