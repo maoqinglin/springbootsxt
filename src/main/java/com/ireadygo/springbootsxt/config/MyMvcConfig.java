@@ -38,7 +38,7 @@ public class MyMvcConfig implements WebMvcConfigurer {
             public void addInterceptors(InterceptorRegistry registry) {
                 registry.addInterceptor(new LoginHandlerInterceptor())
                         .addPathPatterns("/**")
-                        .excludePathPatterns("/index.html", "/", "/user/login", "/asserts/**"); // 不要拦截登录页面，及静态资源
+                        .excludePathPatterns("/index.html", "/", "/user/login", "/asserts/**","/query","/druid","/dept/**"); // 不要拦截登录页面，及静态资源
                 // 因为static下有多种资源，所以添加一个asserts目录
             }
         };
